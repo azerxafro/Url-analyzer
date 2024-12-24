@@ -23,14 +23,8 @@ const limiter = rateLimit({
   message: { error: 'Too many requests, please try again later.' }
 });
 
-// Apply rate limiting only to API routes
-app.use('/api', limiter);
-
-// Serve static files from the dist directory
-app.use(express.static(join(__dirname, '../dist')));
-
-// API Routes
-app.post('/api/analyze', async (req, res, next) => {
+// API Routes - Make sure these come before static files
+app.post('/api/analyze', limiter, async (req, res, next) => {
   try {
     const { url } = req.body;
     if (!url) {
@@ -44,23 +38,22 @@ app.post('/api/analyze', async (req, res, next) => {
   }
 });
 
+// Serve static files from the dist directory
+app.use(express.static(join(__dirname, '../dist')));
+
+// Handle all other routes by serving the index.html
+app.get('*', (req, res) => {
+  res.sendFile(join(__dirname, '../dist/index.html'));
+});
+
 // Error handling middleware
-const errorHandler = (err, req, res, next) => {
+app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ 
     error: 'An unexpected error occurred',
     message: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
-};
-
-// Handle all other routes by serving the index.html
-// This should come after API routes but before error handler
-app.get('*', (req, res) => {
-  res.sendFile(join(__dirname, '../dist/index.html'));
 });
-
-// Apply error handling middleware
-app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

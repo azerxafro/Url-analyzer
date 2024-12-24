@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { AnalysisResult } from '../types';
 
-// In production, use relative path to ensure requests go to the same origin
+// Always use relative path for API requests
 const API_URL = '/api';
 
 export async function analyzeURLAPI(url: string): Promise<AnalysisResult> {
@@ -16,4 +16,3 @@ export async function analyzeURLAPI(url: string): Promise<AnalysisResult> {
     throw new Error('Failed to analyze URL');
   }
 }
-//test save//
