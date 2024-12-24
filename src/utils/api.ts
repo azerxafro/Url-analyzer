@@ -1,9 +1,8 @@
 import axios from 'axios';
 import type { AnalysisResult } from '../types';
 
-const API_URL = import.meta.env.PROD 
-  ? '/api' 
-  : 'http://localhost:3000/api';
+// In production, use relative path to ensure requests go to the same origin
+const API_URL = '/api';
 
 export async function analyzeURLAPI(url: string): Promise<AnalysisResult> {
   try {
@@ -17,3 +16,4 @@ export async function analyzeURLAPI(url: string): Promise<AnalysisResult> {
     throw new Error('Failed to analyze URL');
   }
 }
+//test save//

@@ -23,16 +23,11 @@ const limiter = rateLimit({
   message: { error: 'Too many requests, please try again later.' }
 });
 
+// Apply rate limiting only to API routes
 app.use('/api', limiter);
 
-// Error handling middleware
-const errorHandler = (err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ 
-    error: 'An unexpected error occurred',
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined
-  });
-};
+// Serve static files from the dist directory
+app.use(express.static(join(__dirname, '../dist')));
 
 // API Routes
 app.post('/api/analyze', async (req, res, next) => {
@@ -49,10 +44,17 @@ app.post('/api/analyze', async (req, res, next) => {
   }
 });
 
-// Serve static files from the dist directory
-app.use(express.static(join(__dirname, '../dist')));
+// Error handling middleware
+const errorHandler = (err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    error: 'An unexpected error occurred',
+    message: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+};
 
 // Handle all other routes by serving the index.html
+// This should come after API routes but before error handler
 app.get('*', (req, res) => {
   res.sendFile(join(__dirname, '../dist/index.html'));
 });
