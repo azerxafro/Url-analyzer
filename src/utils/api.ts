@@ -1,8 +1,7 @@
 import axios from 'axios';
 import type { AnalysisResult } from '../types';
 
-// Always use relative path for API requests
-const API_URL = '/api';
+const API_URL = 'https://url-analyzer-g6by.onrender.com/api';
 
 export async function analyzeURLAPI(url: string): Promise<AnalysisResult> {
   try {

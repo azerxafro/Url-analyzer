@@ -2,28 +2,25 @@ import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 import { analyzeURLExternal } from './services/urlAnalyzer.js';
 
 dotenv.config();
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware
+// CORS configuration - allow all origins in development
 app.use(cors());
 app.use(express.json());
 
-// Rate limiting - 5 requests per hour per IP
+// Rate limiting
 const limiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
+  windowMs: 60 * 60 * 1000,
   max: 5,
   message: { error: 'Too many requests, please try again later.' }
 });
 
-// API Routes - Make sure these come before static files
+// API Routes
 app.post('/api/analyze', limiter, async (req, res, next) => {
   try {
     const { url } = req.body;
@@ -38,15 +35,12 @@ app.post('/api/analyze', limiter, async (req, res, next) => {
   }
 });
 
-// Serve static files from the dist directory
-app.use(express.static(join(__dirname, '../dist')));
-
-// Handle all other routes by serving the index.html
-app.get('*', (req, res) => {
-  res.sendFile(join(__dirname, '../dist/index.html'));
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
 });
 
-// Error handling middleware
+// Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ 
